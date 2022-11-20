@@ -54,68 +54,7 @@ def nn_pipeline(x_train, x_test, y_train, y_test, hidden_layer_size, activation,
     prediction = mlp.predict(x_test)
     acc, f1, prec = modelValidation(y_test, prediction)
     return [acc, f1, prec]
-
-# Data Acquisition
-df = pd.read_csv('creditcard.csv')
-
-# Data Understanding
-print("Size of the UCI Credit Card Dataset: " + str(df.shape))
-print(df.dtypes) # to identify the datatypes, identify the categorical datatype values to convert to dummy variables
-
-print("Data Description")
-nullAttributes = df.isnull().sum()
-print(df.describe().transpose())
-
-print("Dataset Info")
-print(df.info())
-
-missingVals = df.isna().sum()
-print("Missing Values")
-print(missingVals) # observe missing values in the dataset # none found
-
-print("Distribution of Target")
-print(df["Approved"].value_counts()) #observe the distribution of approval
-
-
-# removing outliers in the dataset
-num_cols = df.columns[df.dtypes != 'object']
-for i in num_cols:
-    df = outlier(df, i)
-    
-df[df.duplicated()] #determine whether contains duplicates
-
-obj_cols = df.columns[df.dtypes == "object"]
-list(obj_cols)
-
-# Label Encoding
-encoder = LabelEncoder()
-for col in obj_cols:
-    df[col] = ApplyEncoder(col)
-
-# data partitioning, separating target attribute (y) from rest of the factors (x)
-x = df.iloc[:,0:15]
-y = df.iloc[:, 15]
-
-x=pd.get_dummies(x)
-
-# SMOTE - to test whether this improves the metrics - if doesn't can remove
-smt = SMOTE(sampling_strategy='not majority')
-x, y = smt.fit_resample(x, y)
-
-# Creating Dummy Attributes/one hot encoding - not sure whether necessary, test to see impact
-x=pd.get_dummies(x)
-
-
-# Data Scaling
-sc = StandardScaler()
-x = sc.fit_transform(x)
-
-# to verify effects of preprocessing and scaling
-print(df.describe().transpose())
-
-# Data splitting, train test split
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=30,shuffle=True)
-
+     
 # print("Number of iterations:", mlp.n_iter_)
 
 #testing effect of different activation function and solvers
@@ -178,4 +117,81 @@ def test3():
 def test4():
     print()
 
-test3()
+if __name__ == "__main__":
+    # Data Acquisition
+    df = pd.read_csv('creditcard.csv')
+    
+    # Data Understanding
+    print("Size of the UCI Credit Card Dataset: " + str(df.shape))
+    print(df.dtypes) # to identify the datatypes, identify the categorical datatype values to convert to dummy variables
+    
+    print("Data Description")
+    nullAttributes = df.isnull().sum()
+    print(df.describe().transpose())
+    
+    print("Dataset Info")
+    print(df.info())
+    
+    missingVals = df.isna().sum()
+    print("Missing Values")
+    print(missingVals) # observe missing values in the dataset # none found
+    
+    print("Distribution of Target")
+    print(df["Approved"].value_counts()) #observe the distribution of approval
+
+    # removing outliers in the dataset
+    num_cols = df.columns[df.dtypes != 'object']
+    for i in num_cols:
+        df = outlier(df, i)
+        
+    df[df.duplicated()] #determine whether contains duplicates
+    
+    obj_cols = df.columns[df.dtypes == "object"]
+    list(obj_cols)
+    
+    # Label Encoding
+    encoder = LabelEncoder()
+    for col in obj_cols:
+        df[col] = ApplyEncoder(col)
+
+    # data partitioning, separating target attribute (y) from rest of the factors (x)
+    x = df.iloc[:,0:15]
+    y = df.iloc[:, 15]
+    
+    x=pd.get_dummies(x)
+    
+    # SMOTE - to test whether this improves the metrics - if doesn't can remove
+    smt = SMOTE(sampling_strategy='not majority')
+    x, y = smt.fit_resample(x, y)
+    
+    # Creating Dummy Attributes/one hot encoding - not sure whether necessary, test to see impact
+    x=pd.get_dummies(x)
+    
+    # Data Scaling
+    sc = StandardScaler()
+    x = sc.fit_transform(x)
+    
+    # to verify effects of preprocessing and scaling
+    print(df.describe().transpose())
+    
+    # Data splitting, train test split
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=30,shuffle=True)
+    
+    isMenuValid = False
+    
+    while not isMenuValid:
+        menuInput = input("Select to test the effetcs of: \n1 - Different activation function and solvers\n2 - Different hidden layers\n3 - Maximum iterations\n")
+        try:
+            menuN = int(menuInput)
+            if (menuN <= 0 or menuN > 3):
+                raise ValueError
+            else:
+                if menuN == 1:
+                    test1()
+                elif menuN == 2:
+                    test2()
+                else:
+                    test3()
+                isMenuValid = True
+        except ValueError:
+            print("Please enter a valid selection\n")
